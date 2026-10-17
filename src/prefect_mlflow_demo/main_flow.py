@@ -12,11 +12,12 @@ import mlflow
 from prefect import flow, get_run_logger
 
 # Se elimina el punto (.) para usar la importación absoluta desde el paquete
+from prefect_mlflow_demo.data_pipeline import extract_data_2, transform_data_2
 from prefect_mlflow_demo.data_pipeline import extract_data, transform_data
 from prefect_mlflow_demo.model_pipeline import train_and_log_model
 
 
-@flow(name="Pipeline Principal de ML (Iris)")
+@flow(name="Pipeline Principal de ML Fraude")
 def main_ml_pipeline(n_estimators: int = 80, max_depth: int = 5):
     """
     Flujo principal que coordina la extracción de datos, 
@@ -30,8 +31,8 @@ def main_ml_pipeline(n_estimators: int = 80, max_depth: int = 5):
     logger.info(f"MLflow Tracking URI configurada en: {mlflow_uri}")
 
     # 1. Pipeline de Datos
-    raw_df = extract_data()
-    X_train, X_test, y_train, y_test = transform_data(raw_df)
+    raw_df = extract_data_2()
+    X_train, X_test, y_train, y_test = transform_data_2(raw_df)
 
     # 2. Pipeline de Modelo
     metrics = train_and_log_model(
