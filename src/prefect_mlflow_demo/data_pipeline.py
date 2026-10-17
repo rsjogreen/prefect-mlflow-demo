@@ -3,6 +3,7 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from prefect import task
 
+
 @task(name="Cargar Datos Raw", retries=2, retry_delay_seconds=5)
 def extract_data() -> pd.DataFrame:
     """
@@ -14,6 +15,7 @@ def extract_data() -> pd.DataFrame:
     # Renombrar columnas para consistencia
     df.columns = [c.replace(" (cm)", "").replace(" ", "_") for c in df.columns]
     return df
+
 
 @task(name="Preprocesar y Dividir Datos")
 def transform_data(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42):

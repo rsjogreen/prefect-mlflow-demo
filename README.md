@@ -1,21 +1,29 @@
 # Prefect + MLflow Demo
-Este repositorio contiene un ejemplo sencillo de integración entre Prefect y MLflow.
-El objetivo es probar la conexión entre ambas herramientas utilizando un modelo básico de machine learning y dejar registrado el flujo y el experimento en MLflow.
 
-## 🚀 Objetivos
-Configurar un flujo de Prefect que entrene un modelo simple.
+Pipeline de clasificación Iris: Prefect coordina la carga, transformación y entrenamiento del modelo, mientras MLflow registra sus métricas y artefactos.
 
-Registrar el modelo y sus métricas en MLflow.
+## Estructura
 
-Servir como base para futuras pruebas de orquestación y seguimiento de experimentos.
+```text
+src/prefect_mlflow_demo/  Código del paquete y del flujo
+services/                 Docker Compose, guía de servicios y datos locales de MLflow
+pyproject.toml             Dependencias, metadatos del paquete y comandos
+```
 
-## 📂 Estructura
-prefect_flows/ → Flujos de Prefect.
+## Iniciar servicios y ejecutar el flujo
 
-mlflow_experiments/ → Scripts de entrenamiento y registro de modelos.
+Requiere Python 3.12 y Docker Desktop. Desde la raíz del repositorio:
 
-models/ → Modelos entrenados.
+```powershell
+docker compose -f .\services\docker-compose.yml up -d
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .
+$env:PREFECT_API_URL = "http://localhost:4200/api"
+$env:MLFLOW_TRACKING_URI = "http://localhost:5000"
+python -m prefect_mlflow_demo.main_flow
+```
 
-config/ → Archivos de configuración.
+El run aparece en el [dashboard de Prefect](http://localhost:4200/v2/dashboard?rangeType=span&seconds=-86400), y las métricas y el modelo quedan registrados en MLflow (`http://localhost:5000`). Para registrar el deployment y atender las ejecuciones programadas, usa `python -m prefect_mlflow_demo.deploy` en una terminal que permanezca abierta.
 
-notebooks/ → Notebooks de exploración y pruebas.
+También se pueden ejecutar los servicios sin Docker. Consulta [la guía de servicios](services/README.md) para ambas opciones, solución de problemas y comandos detallados.

@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
 from prefect import task, get_run_logger
 
+
 @task(name="Entrenar y Registrar Modelo en MLflow")
 def train_and_log_model(X_train, X_test, y_train, y_test, n_estimators: int, max_depth: int):
     """

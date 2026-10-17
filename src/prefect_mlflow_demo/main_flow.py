@@ -1,6 +1,8 @@
 import os
 import sys
 
+# Agregar 'src' al path dinámicamente para soportar la ejecución directa
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 os.environ.setdefault("PREFECT_API_URL", "http://localhost:4200/api")
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -8,11 +10,14 @@ if hasattr(sys.stdout, "reconfigure"):
 
 import mlflow
 from prefect import flow, get_run_logger
-from data_pipeline import extract_data, transform_data
-from model_pipeline import train_and_log_model
+
+# Se elimina el punto (.) para usar la importación absoluta desde el paquete
+from prefect_mlflow_demo.data_pipeline import extract_data, transform_data
+from prefect_mlflow_demo.model_pipeline import train_and_log_model
+
 
 @flow(name="Pipeline Principal de ML (Iris)")
-def main_ml_pipeline(n_estimators: int = 100, max_depth: int = 5):
+def main_ml_pipeline(n_estimators: int = 80, max_depth: int = 5):
     """
     Flujo principal que coordina la extracción de datos, 
     transformación y entrenamiento del modelo con logueo en MLflow.
@@ -40,6 +45,10 @@ def main_ml_pipeline(n_estimators: int = 100, max_depth: int = 5):
 
     logger.info(f"Flujo completado. Resultados finales: {metrics}")
 
-if __name__ == "__main__":
-    # Ejecutar el flujo localmente para pruebas
+
+def main() -> None:
     main_ml_pipeline()
+
+
+if __name__ == "__main__":
+    main()

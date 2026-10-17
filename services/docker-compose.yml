@@ -3,7 +3,7 @@
 #   docker compose down      # para los servicios; los datos se conservan
 #
 # Imágenes oficiales, sin `build:`: así no hace falta instalar paquetes con pip dentro de un contenedor.
-# Versiones fijadas: MLflow 3.17.0 coincide con actividades/actividad-1/pyproject.toml.
+# Las versiones de MLflow y Prefect coinciden con las dependencias de ../pyproject.toml.
 # Opción B (sin Docker): ver README.md.
 
 services:
