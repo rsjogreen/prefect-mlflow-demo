@@ -1,0 +1,10 @@
+# Opción B (sin Docker): versiones fijadas. Instalar en un entorno con Python 3.12 (ver README.md).
+# mlflow==3.17.0
+# prefect==3.8.8
+
+prefect>=3.0.0
+mlflow>=2.15.0
+scikit-learn>=1.5.0
+pandas>=2.2.0
+numpy>=1.26.0
+psycopg2-binary>=2.9.0
