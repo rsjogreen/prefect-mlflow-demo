@@ -18,7 +18,7 @@ from prefect_mlflow_demo.model_pipeline import train_and_log_model
 
 
 @flow(name="Pipeline Principal de ML Fraude")
-def main_ml_pipeline(n_estimators: int = 80, max_depth: int = 5):
+def main_ml_pipeline(n_estimators: int = 300, max_depth: int = 15):
     """
     Flujo principal que coordina la extracción de datos, 
     transformación y entrenamiento del modelo con logueo en MLflow.
