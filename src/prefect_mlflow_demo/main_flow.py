@@ -14,7 +14,7 @@ from prefect import flow, get_run_logger
 # Se elimina el punto (.) para usar la importación absoluta desde el paquete
 from prefect_mlflow_demo.data_pipeline import extract_data_2, transform_data_2
 from prefect_mlflow_demo.data_pipeline import extract_data, transform_data
-from prefect_mlflow_demo.model_pipeline import train_and_log_model
+from prefect_mlflow_demo.model_pipeline import grid_search_rf, train_and_log_model
 
 
 @flow(name="Pipeline Principal de ML Fraude")
@@ -44,7 +44,13 @@ def main_ml_pipeline(n_estimators: int = 300, max_depth: int = 15):
         max_depth=max_depth
     )
 
-    logger.info(f"Flujo completado. Resultados finales: {metrics}")
+    logger.info(f"Entrenamiento fijo completado. Resultados: {metrics}")
+
+    # 3. Grid Search
+    resultados_grid = grid_search_rf(X_train, X_test, y_train, y_test)
+    logger.info(f"Grid Search completado. Resultados: {resultados_grid}")
+
+    return {"modelo_fijo": metrics, "grid_search": resultados_grid}
 
 
 def main() -> None:

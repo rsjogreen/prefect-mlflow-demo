@@ -1,6 +1,7 @@
 import mlflow
 import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 from prefect import task, get_run_logger
 
@@ -58,3 +59,25 @@ def train_and_log_model(X_train, X_test, y_train, y_test, n_estimators: int, max
 
         logger.info(f"Modelo registrado exitosamente con Accuracy: {acc:.4f}")
         return {"accuracy": acc, "f1": f1, "roc_auc": auc}
+
+
+# 🔄 Nueva tarea: ejecutar un Grid Search
+@task(name="Grid Search RandomForest")
+def grid_search_rf(X_train, X_test, y_train, y_test):
+    # Definimos el espacio de parámetros
+    param_grid = {
+        "n_estimators": [100, 300, 500],
+        "max_depth": [5, 15, 35, None]
+    }
+
+    # Iteramos sobre todas las combinaciones
+    results = []
+    for params in ParameterGrid(param_grid):
+        result = train_and_log_model(
+            X_train, X_test, y_train, y_test,
+            n_estimators=params["n_estimators"],
+            max_depth=params["max_depth"]
+        )
+        results.append({"params": params, "metrics": result})
+
+    return results
