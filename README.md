@@ -1,33 +1,43 @@
-# Pipeline de machine learning con Prefect y MLflow
+# Pipeline de clasificación de fraude con Prefect y MLflow
 
-Este proyecto implementa un pipeline de clasificación del conjunto de datos Iris. **Prefect** organiza las etapas y muestra las ejecuciones en su dashboard; **MLflow** registra los parámetros, las métricas y el modelo entrenado.
+Este proyecto entrena y evalúa modelos de clasificación para detectar transacciones fraudulentas usando los datos de `datos/train.csv`. **Prefect** organiza las etapas del pipeline y registra sus ejecuciones; **MLflow** registra los parámetros, las métricas y los modelos entrenados para facilitar su seguimiento y comparación.
 
-## Qué hace el pipeline
+## Qué hace el experimento
 
-1. Carga Iris desde `scikit-learn`.
-2. Separa características y etiquetas, y crea conjuntos de entrenamiento y prueba estratificados (20 % para prueba).
-3. Entrena un `RandomForestClassifier`.
-4. Calcula *accuracy* y F1 ponderado.
-5. Registra parámetros, métricas y el modelo `IrisRandomForestModel` en MLflow, dentro del experimento `Clasificacion_Iris_Prefect`.
+El flujo principal, **Pipeline Principal de ML Fraude**, realiza estos pasos:
 
-El flujo Prefect se llama **Pipeline Principal de ML (Iris)**. Al ejecutarlo directamente usa 80 estimadores, profundidad máxima 5 y semilla 42. El deployment usa 100 estimadores y profundidad máxima 5, y tiene una programación horaria.
+1. Lee `datos/train.csv` como un CSV separado por punto y coma. El archivo `datos/test.csv` está en el repositorio, pero actualmente el flujo no lo utiliza.
+2. Usa `Fraude` como variable objetivo y excluye `ID` de las variables predictoras.
+3. Convierte las variables categóricas a columnas numéricas con `OneHotEncoder` y divide los datos en conjuntos de entrenamiento (80 %) y prueba (20 %), con división estratificada y semilla 42.
+4. Entrena un `RandomForestClassifier` con los parámetros indicados y evalúa las predicciones con *accuracy*, F1 ponderado y ROC AUC.
+5. Registra parámetros, métricas y el modelo en el experimento `Clasificacion_fraude_random_forest` de MLflow. El modelo registrado se llama `Fraude_RandomForestModel`.
+6. Ejecuta una búsqueda de hiperparámetros sobre 12 combinaciones:
+   - `n_estimators`: 100, 300 y 500.
+   - `max_depth`: 5, 15, 35 y `None`.
+
+Al ejecutar el flujo directamente, primero se realiza un entrenamiento base con 300 árboles y profundidad máxima 15; luego se evalúan las 12 combinaciones de la búsqueda. Cada entrenamiento se registra como una ejecución de MLflow.
+
+El deployment definido en `deploy.py` usa 100 árboles y profundidad máxima 5, y programa el flujo cada hora (`0 * * * *`). El proceso que sirve el deployment debe permanecer activo para atender las ejecuciones programadas.
 
 ## Estructura
 
 ```text
 .
+├── datos/
+│   ├── train.csv                  # Datos usados actualmente por el pipeline
+│   └── test.csv                   # Presente, pero no usado por el flujo actual
 ├── pyproject.toml                 # Dependencias, configuración del paquete y comandos
 ├── src/
 │   └── prefect_mlflow_demo/
-│       ├── main_flow.py            # Flujo Prefect y configuración de conexiones
-│       ├── data_pipeline.py        # Carga, separación y preparación de datos
-│       ├── model_pipeline.py       # Entrenamiento y registro en MLflow
-│       └── deploy.py               # Deployment Prefect con programación horaria
+│       ├── main_flow.py           # Flujo Prefect y configuración de conexiones
+│       ├── data_pipeline.py       # Carga, codificación y división de datos
+│       ├── model_pipeline.py      # Entrenamiento, evaluación y registro en MLflow
+│       └── deploy.py              # Deployment Prefect con programación horaria
 └── services/
-    ├── docker-compose.yml          # Servidores locales de Prefect y MLflow
-    ├── requirements.txt            # Instalación del proyecto para la opción sin Docker
-    ├── README.md                   # Instrucciones detalladas y solución de problemas
-    └── mlflow_store/                # Base de datos y artefactos locales de MLflow
+    ├── docker-compose.yml         # Servidores locales de Prefect y MLflow
+    ├── requirements.txt           # Instalación del proyecto para la opción sin Docker
+    ├── README.md                  # Instrucciones detalladas y solución de problemas
+    └── mlflow_store/              # Base de datos y artefactos locales de MLflow
 ```
 
 ## Requisitos
