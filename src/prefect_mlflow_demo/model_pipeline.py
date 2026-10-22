@@ -66,8 +66,8 @@ def train_and_log_model(X_train, X_test, y_train, y_test, n_estimators: int, max
 def grid_search_rf(X_train, X_test, y_train, y_test):
     # Definimos el espacio de parámetros
     param_grid = {
-        "n_estimators": [100, 300, 500],
-        "max_depth": [5, 15, 35, None]
+        "n_estimators": [300],
+        "max_depth": [15, 35]
     }
 
     # Iteramos sobre todas las combinaciones
