@@ -7,3 +7,6 @@ __pycache__/
 .ruff_cache/
 .prefect/
 services/mlflow_store/
+mlruns/
+mlflow.db
+mlflow_store/
